@@ -33,7 +33,7 @@ class RenderController {
 
   /// The controller to initiate a render process. See doc for more info.
   RenderController({this.logLevel = LogLevel.debug})
-      : id = UuidValue(const Uuid().v4());
+      : id = UuidValue.raw(const Uuid().v4());
 
   /// Creating a `RenderSession` from a `DetachedRenderSession`
   RenderSession<T, K> _createRenderSessionFrom<T extends RenderFormat,
