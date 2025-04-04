@@ -76,23 +76,11 @@ class _MyHomePageState extends State<MyHomePage>
                         settings: const MotionSettings(
                           pixelRatio: 5,
                           frameRate: 30,
-                          simultaneousCaptureHandlers: 6,
                         ),
                         logInConsole: true,
-                        format: Mp4Format(audio: [
-                          RenderAudio.url(
-                            Uri.parse(
-                                "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"),
-                          ),
-                          /*
-                          RenderAudio.url(
-                            Uri.parse(
-                                "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"),
-                            startTime: 40,
-                            endTime: 45.4365,
-                          ),
-                           */
-                        ]),
+                        format: const Mp4Format(
+                          audio: null,
+                        ),
                       );
                       setState(() {
                         functionController.attach(stream);
@@ -103,13 +91,6 @@ class _MyHomePageState extends State<MyHomePage>
                       displayResult(result as RenderResult);
                     },
                     exampleAnimationController: functionController,
-                    imageRenderCallback: () async {
-                      final imageResult = await renderController.captureImage(
-                        format: ImageFormat.png,
-                        settings: const ImageSettings(pixelRatio: 3),
-                      );
-                      displayResult(imageResult);
-                    },
                   ),
                 ],
               ),

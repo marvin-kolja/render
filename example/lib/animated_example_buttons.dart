@@ -4,12 +4,10 @@ import 'animated_example_controller.dart';
 
 class NavigationButtons extends StatelessWidget {
   final void Function() motionRenderCallback;
-  final void Function() imageRenderCallback;
   final ExampleAnimationController exampleAnimationController;
 
   const NavigationButtons({
     Key? key,
-    required this.imageRenderCallback,
     required this.motionRenderCallback,
     required this.exampleAnimationController,
   }) : super(key: key);
@@ -76,16 +74,27 @@ class NavigationButtons extends StatelessWidget {
                     motionRenderCallback();
                   },
                   child: const Text("Capture motion")),
-              TextButton(
-                  onPressed: () {
-                    imageRenderCallback();
-                  },
-                  child: const Text("Capture image")),
-              TextButton(
-                  onPressed: () {
-                    exampleAnimationController.play();
-                  },
-                  child: const Text("Play"))
+              ListenableBuilder(
+                listenable: exampleAnimationController.videoController!,
+                builder: (context, snapshot) {
+                  return TextButton(
+                    onPressed: () {
+                      if (exampleAnimationController
+                              .videoController?.value.isPlaying ??
+                          false) {
+                        exampleAnimationController.videoController?.pause();
+                      } else {
+                        exampleAnimationController.play();
+                      }
+                    },
+                    child: (exampleAnimationController
+                                .videoController?.value.isPlaying ??
+                            false)
+                        ? const Text("Pause")
+                        : const Text("Play"),
+                  );
+                },
+              ),
             ],
           ),
         ),
