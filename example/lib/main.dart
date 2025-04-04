@@ -48,64 +48,66 @@ class _MyHomePageState extends State<MyHomePage>
       appBar: AppBar(
         title: const Text("Render Example"),
       ),
-      body: FutureBuilder(
-        future: init,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.connectionState == ConnectionState.done &&
-              snapshot.hasData) {
-            final functionController = snapshot.data!;
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const Spacer(),
-                  Render(
-                    controller: renderController,
-                    child: AnimatedExampleWidget(
+      body: SafeArea(
+        child: FutureBuilder(
+          future: init,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.connectionState == ConnectionState.done &&
+                snapshot.hasData) {
+              final functionController = snapshot.data!;
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Spacer(),
+                    Render(
+                      controller: renderController,
+                      child: AnimatedExampleWidget(
+                        exampleAnimationController: functionController,
+                      ),
+                    ),
+                    const Spacer(),
+                    NavigationButtons(
+                      motionRenderCallback: () async {
+                        functionController.play();
+                        final stream = renderController.captureMotionWithStream(
+                          functionController.duration,
+                          settings: const MotionSettings(
+                            pixelRatio: 5,
+                            frameRate: 30,
+                          ),
+                          logInConsole: true,
+                          format: const Mp4Format(
+                            audio: null,
+                          ),
+                        );
+                        setState(() {
+                          functionController.attach(stream);
+                        });
+                        final result = await stream.firstWhere(
+                            (event) => event.isResult || event.isFatalError);
+                        if (result.isFatalError) return;
+                        displayResult(result as RenderResult);
+                      },
                       exampleAnimationController: functionController,
                     ),
-                  ),
-                  const Spacer(),
-                  NavigationButtons(
-                    motionRenderCallback: () async {
-                      functionController.play();
-                      final stream = renderController.captureMotionWithStream(
-                        functionController.duration,
-                        settings: const MotionSettings(
-                          pixelRatio: 5,
-                          frameRate: 30,
-                        ),
-                        logInConsole: true,
-                        format: const Mp4Format(
-                          audio: null,
-                        ),
-                      );
-                      setState(() {
-                        functionController.attach(stream);
-                      });
-                      final result = await stream.firstWhere(
-                          (event) => event.isResult || event.isFatalError);
-                      if (result.isFatalError) return;
-                      displayResult(result as RenderResult);
-                    },
-                    exampleAnimationController: functionController,
-                  ),
-                ],
-              ),
-            );
-          } else {
-            return Center(
-              child: Text(
-                "Error loading: ${snapshot.error}",
-                style: const TextStyle(
-                  color: Colors.red,
+                  ],
                 ),
-              ),
-            );
-          }
-        },
+              );
+            } else {
+              return Center(
+                child: Text(
+                  "Error loading: ${snapshot.error}",
+                  style: const TextStyle(
+                    color: Colors.red,
+                  ),
+                ),
+              );
+            }
+          },
+        ),
       ),
     );
   }
