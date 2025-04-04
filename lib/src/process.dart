@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:render/src/formats/abstract.dart';
-import 'package:render/src/service/notifier.dart';
-import 'package:render/src/service/session.dart';
-import 'package:render/src/service/settings.dart';
+import 'package:render_native/src/formats/abstract.dart';
+import 'package:render_native/src/service/notifier.dart';
+import 'package:render_native/src/service/session.dart';
+import 'package:render_native/src/service/settings.dart';
 import 'service/exception.dart';
 
 abstract class RenderProcessor<T extends RenderFormat> {

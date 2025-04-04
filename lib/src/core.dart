@@ -1,18 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:render/src/service/exception.dart';
-import 'package:render/src/service/task_identifier.dart';
+import 'package:render_native/src/service/exception.dart';
+import 'package:render_native/src/service/task_identifier.dart';
 import 'package:rich_console/rich_console.dart';
 import 'package:uuid/uuid.dart';
 
 import 'dart:async';
-import 'package:render/src/capturer.dart';
-import 'package:render/src/formats/abstract.dart';
-import 'package:render/src/formats/image.dart';
-import 'package:render/src/formats/motion.dart';
-import 'package:render/src/process.dart';
-import 'package:render/src/service/session.dart';
-import 'package:render/src/service/settings.dart';
+import 'package:render_native/src/capturer.dart';
+import 'package:render_native/src/formats/abstract.dart';
+import 'package:render_native/src/formats/image.dart';
+import 'package:render_native/src/formats/motion.dart';
+import 'package:render_native/src/process.dart';
+import 'package:render_native/src/service/session.dart';
+import 'package:render_native/src/service/settings.dart';
 import 'service/notifier.dart';
 
 class RenderController {

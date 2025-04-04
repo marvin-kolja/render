@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'package:render/src/service/session.dart';
-import 'package:render/src/service/settings.dart';
+import 'package:render_native/src/service/session.dart';
+import 'package:render_native/src/service/settings.dart';
 import '../formats/abstract.dart';
 import 'exception.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:render/render_native.dart';
+import 'package:render_native/render_native.dart';
 import 'animated_example_controller.dart';
 
 class NavigationButtons extends StatelessWidget {

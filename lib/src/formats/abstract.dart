@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:render/src/formats/image.dart';
-import 'package:render/src/formats/service.dart';
+import 'package:render_native/src/formats/image.dart';
+import 'package:render_native/src/formats/service.dart';
 
 import 'motion.dart';
 

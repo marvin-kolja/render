@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter_quick_video_encoder/flutter_quick_video_encoder.dart';
-import 'package:render/src/formats/service.dart';
+import 'package:render_native/src/formats/service.dart';
 
 import 'abstract.dart';
 

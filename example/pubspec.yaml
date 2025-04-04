@@ -37,7 +37,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.5
   gallery_saver: ^2.3.2
-  render:
+  render_native:
     path: ../
   video_player: ^2.8.0
 
