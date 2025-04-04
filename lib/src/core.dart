@@ -149,7 +149,7 @@ class RenderController {
     Duration duration, {
     LogLevel? logLevel,
     MotionSettings settings = const MotionSettings(),
-    MotionFormat format = const MovFormat(),
+    MotionFormat format = const Mp4Format(),
   }) async {
     final stream = captureMotionWithStream(
       duration,
@@ -184,7 +184,7 @@ class RenderController {
     Duration duration, {
     LogLevel? logLevel,
     MotionSettings settings = const MotionSettings(),
-    MotionFormat format = const MovFormat(),
+    MotionFormat format = const Mp4Format(),
   }) async {
     final stream = captureMotionFromWidgetWithStream(
       context,
@@ -243,7 +243,7 @@ class RenderController {
     Duration duration, {
     LogLevel? logLevel,
     MotionSettings settings = const MotionSettings(),
-    MotionFormat format = const MovFormat(),
+    MotionFormat format = const Mp4Format(),
     bool logInConsole = false,
   }) {
     final notifier = StreamController<RenderNotifier>.broadcast();
@@ -324,7 +324,7 @@ class RenderController {
     Duration duration, {
     LogLevel? logLevel,
     MotionSettings settings = const MotionSettings(),
-    MotionFormat format = const MovFormat(),
+    MotionFormat format = const Mp4Format(),
     bool logInConsole = false,
   }) {
     final widgetTask = WidgetIdentifier(controllerId: id, widget: widget);
@@ -358,7 +358,7 @@ class RenderController {
   MotionRecorder recordMotion({
     LogLevel? logLevel,
     MotionSettings settings = const MotionSettings(),
-    MotionFormat format = const MovFormat(),
+    MotionFormat format = const Mp4Format(),
     bool logInConsole = false,
   }) {
     assert(!kIsWeb, "Render does not support Web yet");
@@ -387,7 +387,7 @@ class RenderController {
     Widget widget, {
     LogLevel? logLevel,
     MotionSettings settings = const MotionSettings(),
-    MotionFormat format = const MovFormat(),
+    MotionFormat format = const Mp4Format(),
     bool logInConsole = false,
   }) {
     assert(!kIsWeb, "Render does not support Web yet");

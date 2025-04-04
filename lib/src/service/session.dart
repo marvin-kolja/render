@@ -18,16 +18,8 @@ class DetachedRenderSession<T extends RenderFormat, K extends RenderSettings> {
   /// This should be somewhere in a RAM location for fast processing.
   final String temporaryDirectory;
 
-  /// Where internal files are being written (frames, layers, palettes, etc.)
-  /// Note that there will be additional sub-directories that separate different
-  /// internal actions and sessions. Directories will be deleted after a session.
-  final String inputDirectory;
-
   /// Where result files are being written
   final String outputDirectory;
-
-  /// A directory where files are being written that are used for processing.
-  final String processDirectory;
 
   /// All render related settings
   final K settings;
@@ -46,10 +38,8 @@ class DetachedRenderSession<T extends RenderFormat, K extends RenderSettings> {
     required this.logLevel,
     required this.binding,
     required this.outputDirectory,
-    required this.inputDirectory,
     required this.sessionId,
     required this.temporaryDirectory,
-    required this.processDirectory,
     required this.settings,
     required this.format,
   });
@@ -66,8 +56,6 @@ class DetachedRenderSession<T extends RenderFormat, K extends RenderSettings> {
       logLevel: logLevel,
       binding: SchedulerBinding.instance,
       outputDirectory: "${tempDir.path}/render/$sessionId/output",
-      inputDirectory: "${tempDir.path}/render/$sessionId/input",
-      processDirectory: "${tempDir.path}/render/$sessionId/process",
       sessionId: sessionId,
       temporaryDirectory: tempDir.path,
       settings: settings,
@@ -82,33 +70,9 @@ class DetachedRenderSession<T extends RenderFormat, K extends RenderSettings> {
     return outputFile;
   }
 
-  /// Creating a file in the input directory.
-  File createInputFile(String subPath) =>
-      _createFile("$inputDirectory/$subPath");
-
   /// Creating a file in the output directory.
   File createOutputFile(String subPath) =>
       _createFile("$outputDirectory/$subPath");
-
-  /// Creating a file in the process directory.
-  File createProcessFile(String subPath) =>
-      _createFile("$processDirectory/$subPath");
-
-  /// The expected processing state share each part holds. This is relevant for
-  /// calculating the expected time remain and progress percentage of rendering.
-  /// Values are based on experimentation.
-  double processingShare(RenderState state) {
-    switch (state) {
-      case RenderState.capturing:
-        return 0.7 * (1 - format.processShare);
-      case RenderState.handleCaptures:
-        return 0.3 * (1 - format.processShare);
-      case RenderState.processing:
-        return format.processShare;
-      case RenderState.finishing:
-        return 0;
-    }
-  }
 }
 
 class RenderSession<T extends RenderFormat, K extends RenderSettings>
@@ -132,9 +96,7 @@ class RenderSession<T extends RenderFormat, K extends RenderSettings>
   RenderSession({
     required super.logLevel,
     required super.settings,
-    required super.inputDirectory,
     required super.outputDirectory,
-    required super.processDirectory,
     required super.sessionId,
     required super.temporaryDirectory,
     required super.format,
@@ -163,8 +125,6 @@ class RenderSession<T extends RenderFormat, K extends RenderSettings>
           binding: detachedSession.binding,
           format: detachedSession.format,
           settings: detachedSession.settings,
-          processDirectory: detachedSession.processDirectory,
-          inputDirectory: detachedSession.inputDirectory,
           outputDirectory: detachedSession.outputDirectory,
           sessionId: detachedSession.sessionId,
           temporaryDirectory: detachedSession.temporaryDirectory,
@@ -183,9 +143,7 @@ class RenderSession<T extends RenderFormat, K extends RenderSettings>
       onDispose: onDispose,
       startTime: startTime,
       logLevel: logLevel,
-      inputDirectory: inputDirectory,
       outputDirectory: outputDirectory,
-      processDirectory: processDirectory,
       sessionId: sessionId,
       temporaryDirectory: temporaryDirectory,
       format: format,
@@ -266,12 +224,6 @@ class RenderSession<T extends RenderFormat, K extends RenderSettings>
   /// Disposing the current render session.
   Future<void> dispose() async {
     onDispose();
-    if (Directory(inputDirectory).existsSync()) {
-      Directory(inputDirectory).deleteSync(recursive: true);
-    }
-    if (Directory(processDirectory).existsSync()) {
-      Directory(processDirectory).deleteSync(recursive: true);
-    }
     await _notifier.close();
   }
 }

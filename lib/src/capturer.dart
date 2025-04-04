@@ -1,10 +1,11 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:ffmpeg_kit_flutter_https_gpl/ffmpeg_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:render/src/formats/service.dart';
 import 'package:render/src/service/notifier.dart';
 import 'package:render/src/service/session.dart';
 import 'package:render/src/service/settings.dart';
@@ -34,6 +35,9 @@ class RenderCapturer<K extends RenderFormat> {
 
   /// A flag to indicate whether the capturing process is running or not.
   bool _rendering = false;
+
+  /// A handler for the motion audio stream (if any).
+  AudioStreamHandler? _audioStreamHandler;
 
   ///The time position of capture start of the duration of the scheduler binding.
   Duration? startingDuration;
@@ -94,6 +98,9 @@ class RenderCapturer<K extends RenderFormat> {
             startTime!.millisecondsSinceEpoch); // log end of capturing
     _rendering = false;
     startingDuration = null;
+    await _audioStreamHandler?.wait();
+    _audioStreamHandler?.dispose();
+    _audioStreamHandler = null;
     // * wait for handlers
     await Future.doWhile(() async {
       //await all active capture handlers
@@ -160,30 +167,59 @@ class RenderCapturer<K extends RenderFormat> {
       // and then converting to png with ffmpeg
       final ByteData? byteData =
           await capture.toByteData(format: ui.ImageByteFormat.rawRgba);
-      final rawIntList = byteData!.buffer.asInt8List();
-      // * write raw file for processing
-      final rawFile = session
-          .createProcessFile("frameHandling/frame_raw$captureNumber.bmp");
-      await rawFile.writeAsBytes(rawIntList);
-      // * write & convert file (to save storage)
-      final file = session.createInputFile("frame$captureNumber.png");
-      final saveSize = Size(
-        // adjust frame size, so that it can be divided by 2
-        (capture.width / 2).ceil() * 2,
-        (capture.height / 2).ceil() * 2,
-      );
-      await FFmpegKit.executeWithArguments([
-        "-y",
-        "-f", "rawvideo", // specify input format
-        "-pixel_format", "rgba", // maintain transparency
-        "-video_size", "${capture.width}x${capture.height}", // set capture size
-        "-i", rawFile.path, // input the raw frame
-        "-vf", "scale=${saveSize.width}:${saveSize.height}", // scale to save
-        file.path, //out put png
-      ]);
+      final rawIntList = byteData!.buffer.asUint8List();
+
+      final format = session.format;
+      if (captureNumber == 0) {
+        // * setup encoder on first frame
+
+        switch (format) {
+          case MotionFormat motionFormat:
+            final settings = session.settings.asMotion!;
+            motionFormat.setupEncoder(
+              width: capture.width,
+              height: capture.height,
+              frameRate: settings.frameRate,
+              outputPath: session
+                  .createOutputFile("output_main.${session.format.extension}")
+                  .path,
+            );
+            final audio = motionFormat.audio;
+
+            if (audio != null) {
+              // * setup audio encoder
+              _audioStreamHandler = AudioStreamHandler(
+                audioStream: audio,
+                frameRate: settings.frameRate,
+                onAudioChunk: motionFormat.addAudioFrame,
+                onAudioError: (e, stackTrace) {
+                  session.recordError(
+                    RenderException(
+                      "Unknown error while handling audio.",
+                      details: e,
+                      fatal: true,
+                    ),
+                  );
+                },
+              );
+            }
+
+            break;
+          case ImageFormat imageFormat:
+            throw UnimplementedError(
+                "Image format is not supported at the moment.");
+          default:
+            throw const RenderException("Unknown format.");
+        }
+      }
+
+      switch (format) {
+        case MotionFormat motionFormat:
+          await motionFormat.addVideoFrame(rawIntList);
+          break;
+      }
       // * finish
       capture.dispose();
-      rawFile.deleteSync();
       if (!_rendering) {
         //only record next state, when rendering is done not to mix up notification
         _recordActivity(RenderState.handleCaptures, captureNumber,
@@ -192,8 +228,9 @@ class RenderCapturer<K extends RenderFormat> {
     } catch (e) {
       session.recordError(
         RenderException(
-          "Handling frame $captureNumber unsuccessful.",
+          "Unknown error while handling capture.",
           details: e,
+          fatal: true,
         ),
       );
     }
@@ -205,9 +242,7 @@ class RenderCapturer<K extends RenderFormat> {
   /// and images still available.
   void _triggerHandler([int? totalFrameTarget]) {
     final nextCaptureIndex = _handlers.length;
-    if (_activeHandlers <
-            (session.settings.asMotion?.simultaneousCaptureHandlers ?? 1) &&
-        nextCaptureIndex < _unhandledCaptures.length) {
+    if (_activeHandlers < 1 && nextCaptureIndex < _unhandledCaptures.length) {
       _handlers.add(_handleCapture(nextCaptureIndex, totalFrameTarget));
     }
   }
@@ -347,5 +382,83 @@ class RenderCapturer<K extends RenderFormat> {
       // capturing activity when recording (no time limit set)
       session.recordActivity(state, null, message: message);
     }
+  }
+}
+
+class AudioStreamHandler {
+  final AudioStream audioStream;
+
+  final int frameRate;
+
+  late final StreamSubscription<Uint8List> _audioSubscription;
+
+  final Completer<bool> _audioCompleter = Completer<bool>();
+
+  final Queue<int> _audioBytesQueue = Queue<int>();
+
+  Future<void>? _chunksHandler;
+
+  late final Function(Uint8List) _onAudioChunk;
+
+  AudioStreamHandler({
+    required this.audioStream,
+    required this.frameRate,
+    required FutureOr<void> Function(Uint8List) onAudioChunk,
+    Function()? onAudioDone,
+    Function(Object, StackTrace)? onAudioError,
+  }) {
+    _onAudioChunk = onAudioChunk;
+
+    _audioSubscription = audioStream.stream.listen(
+      (pcmChunk) {
+        _audioBytesQueue.addAll(pcmChunk);
+        _handleAudioChunks();
+      },
+      onDone: () {
+        _audioCompleter.complete(true);
+        onAudioDone?.call();
+      },
+      onError: (error, stackTrace) {
+        _audioCompleter.complete(false);
+        onAudioError?.call(error, stackTrace);
+      },
+    );
+  }
+
+  void _handleAudioChunks() async {
+    _chunksHandler ??= Future(
+      () async {
+        while (_audioBytesQueue.length >= frameSize) {
+          final frame = List<int>.generate(
+            frameSize,
+            (_) => _audioBytesQueue.removeFirst(),
+          );
+          await _onAudioChunk(Uint8List.fromList(frame));
+        }
+        _chunksHandler = null;
+      },
+    );
+  }
+
+  int get frameSize =>
+      audioStream.sampleRate * audioStream.numChannels * 2 ~/ frameRate;
+
+  Future<bool> get audioStreamCompleter => _audioCompleter.future;
+
+  Future<void> wait() async {
+    await _audioCompleter.future;
+    _handleAudioChunks();
+    final chunksHandler = _chunksHandler;
+    if (chunksHandler != null) {
+      await chunksHandler;
+    }
+  }
+
+  void dispose() {
+    _audioSubscription.cancel();
+    if (!_audioCompleter.isCompleted) {
+      _audioCompleter.complete(false);
+    }
+    _audioBytesQueue.clear();
   }
 }

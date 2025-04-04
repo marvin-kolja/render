@@ -14,22 +14,23 @@ class PngFormat extends ImageFormat {
   /// format is a popular choice for Flutter developers due to its high
   /// quality and compatibility with the framework.
   const PngFormat({
-    super.scale,
-    super.interpolation = Interpolation.bicubic,
+    super.quality = 95,
   }) : super(
           handling: FormatHandling.image,
-          processShare: 0.5,
         );
 
   @override
   PngFormat copyWith({
-    RenderScale? scale,
-    Interpolation? interpolation,
+    int? quality,
   }) {
     return PngFormat(
-      scale: scale ?? this.scale,
-      interpolation: interpolation ?? this.interpolation,
+      quality: quality ?? this.quality,
     );
+  }
+
+  @override
+  Future<String> render() {
+    throw UnimplementedError("PNG rendering not implemented, yet.");
   }
 
   @override
@@ -43,104 +44,25 @@ class JpgFormat extends ImageFormat {
   /// quality of the image.
   /// Does not support transparency.
   const JpgFormat({
-    super.scale,
-    super.interpolation = Interpolation.bicubic,
+    super.quality = 95,
   }) : super(
           handling: FormatHandling.image,
-          processShare: 0.5,
         );
 
   @override
   JpgFormat copyWith({
-    RenderScale? scale,
-    Interpolation? interpolation,
+    int? quality,
   }) {
     return JpgFormat(
-      scale: scale ?? this.scale,
-      interpolation: interpolation ?? this.interpolation,
+      quality: quality ?? this.quality,
     );
+  }
+
+  @override
+  Future<String> render() {
+    throw UnimplementedError("JPG rendering not implemented, yet.");
   }
 
   @override
   String get extension => "jpg";
-}
-
-class BmpFormat extends ImageFormat {
-  /// BMP (Bitmap) is a widely-used image file format that is primarily used
-  /// on Microsoft Windows operating systems. It is a simple, uncompressed
-  /// format that stores digital images in a grid of pixels. BMP files can be
-  /// created and edited using various image editing software, and they can
-  /// contain both monochrome and color images. Despite its age and lack of
-  /// advanced features, BMP remains a popular format due to its compatibility
-  /// with older systems and its ability to store large amounts of data in a
-  /// single file.
-  const BmpFormat({
-    super.scale,
-    super.interpolation = Interpolation.bicubic,
-  }) : super(
-          handling: FormatHandling.image,
-          processShare: 0.5,
-        );
-
-  @override
-  BmpFormat copyWith({
-    RenderScale? scale,
-    Interpolation? interpolation,
-  }) {
-    return BmpFormat(
-      scale: scale ?? this.scale,
-      interpolation: interpolation ?? this.interpolation,
-    );
-  }
-
-  @override
-  FFmpegRenderOperation processor(
-      {required String inputPath,
-      required String outputPath,
-      required double frameRate}) {
-    return FFmpegRenderOperation([
-      "-y",
-      "-i", inputPath, // input image
-      "-pix_fmt", "bgra",
-      scalingFilter != null ? "-vf??$scalingFilter" : null,
-      "-vframes", "1", // indicate that there is only one frame
-      outputPath,
-    ]);
-  }
-
-  @override
-  String get extension => "bmp";
-}
-
-class TiffFormat extends ImageFormat {
-  /// TIFF (Tagged Image File Format) is a widely used image file format that
-  /// supports lossless compression and high-resolution images. It is commonly
-  /// used in the printing and publishing industry due to its ability to
-  /// maintain image quality while also allowing for editing and manipulation
-  /// of the image. TIFF files can also include metadata, such as keywords
-  /// and captions, making them useful for archiving and organizing digital
-  /// images.
-  ///
-  /// It is not supported by flutters default image visualizer.
-  const TiffFormat({
-    super.scale,
-    super.interpolation = Interpolation.bicubic,
-  }) : super(
-          handling: FormatHandling.image,
-          processShare: 0.5,
-        );
-
-  @override
-  TiffFormat copyWith({
-    RenderScale? scale,
-    Interpolation? interpolation,
-  }) {
-    return TiffFormat(
-      scale: scale ?? this.scale,
-      interpolation: interpolation ?? this.interpolation,
-    );
-  }
-
-  @override
-  String get extension => "tiff";
 }

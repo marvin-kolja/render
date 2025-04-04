@@ -111,14 +111,7 @@ class RenderActivity extends RenderNotifier {
   /// This value is based on the execution time of previous operations and does
   /// not necessarily represent the actual remaining time.
   double get progressPercentage {
-    final percentagePassed = RenderState.values
-        .sublist(0, RenderState.values.indexOf(state))
-        .fold(
-            0.0,
-            (previousValue, element) =>
-                previousValue + _session.processingShare(element));
-    return currentStateProgression * _session.processingShare(state) +
-        percentagePassed;
+    return currentStateProgression;
   }
 
   /// Calculating the total time that is expected to be needed to render the
