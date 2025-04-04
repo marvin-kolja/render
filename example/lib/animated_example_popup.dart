@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:render/render.dart';
+import 'package:render/render_native.dart';
 import 'package:video_player/video_player.dart';
 
 class AnimatedExamplePopUp extends StatelessWidget {

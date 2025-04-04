@@ -12,7 +12,12 @@
 
 ----
 
-# Render
+# Render Native
+
+> [!CAUTION]
+> The following documentation does not reflect the current state of the package.
+>
+> This is a forked version of the original [`render`](https://github.com/polarby/render) package. It tries to replace the use of FFmpeg with native encoding. This resulted in drastic changes to the API.
 
 A flutter widget to render and convert widgets into a wide range of exportable file formats.
 Main features include:
@@ -81,7 +86,7 @@ more.
 Now in your Dart code, you can use:
 
 ```dart
-import 'package:render/render.dart';
+import 'package:render/render_native.dart';
 ```
 
 ### Quick start
@@ -95,7 +100,7 @@ therefore may throw an error.
 
 [comment]: # (@formatter:off)
 ```dart
-import 'package:render/render.dart';
+import 'package:render/render_native.dart';
 
 final controller = RenderController();
 

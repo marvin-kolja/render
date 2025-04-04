@@ -482,7 +482,7 @@ class Render extends StatefulWidget {
   ///
   /// ---
   ///```
-  /// import 'package:render/render.dart';
+  /// import 'package:render/render_native.dart';
   ///
   /// final controller = RenderController();
   ///

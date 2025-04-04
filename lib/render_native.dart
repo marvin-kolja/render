@@ -1,4 +1,4 @@
-library render;
+library render_native;
 
 export 'src/core.dart';
 export 'src/service/exception.dart';

@@ -55,8 +55,8 @@
 
 * window update (flutter 3.1) flutterView
 
-## next
+## 0.2.0
 
-* replaced ffmpeg dependency in favor of native encoding. This resulted in changes to the API. Thus, certain options and formats have been changed or removed.
-* replaced audio render options with pcm audio stream. Instead of passing an audio file, you can pass a stream of pcm audio data. The audio stream will be cut into the correct chunks and passed to the native encoder.
-* NOTE: single image encoding is not implemented at the moment, thus, single image capture does not work.
+* BREAKING CHANGE: replaced ffmpeg dependency in favor of native encoding. This resulted in changes to the API. Thus, certain options and formats have been changed or removed.
+* BREAKING CHANGE: replaced audio render options with pcm audio stream. Instead of passing an audio file, you can pass a stream of pcm audio data. The audio stream will be cut into the correct chunks and passed to the native encoder.
+* BREAKING CHANGE: single image encoding is not implemented at the moment, thus, single image capture does not work.
