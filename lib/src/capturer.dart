@@ -176,7 +176,7 @@ class RenderCapturer<K extends RenderFormat> {
         switch (format) {
           case MotionFormat motionFormat:
             final settings = session.settings.asMotion!;
-            motionFormat.setupEncoder(
+            await motionFormat.setupEncoder(
               width: capture.width,
               height: capture.height,
               frameRate: settings.frameRate,
