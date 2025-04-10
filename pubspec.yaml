@@ -1,6 +1,6 @@
 name: render_native
 description: A fork of https://github.com/polarby/render that replaces ffmpeg_kit with native counterparts.
-version: 0.2.1
+version: 0.2.2
 homepage: https://github.com/marvin-kolja/render/tree/feat/native-rendering
 
 environment:

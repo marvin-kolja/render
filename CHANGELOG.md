@@ -64,3 +64,7 @@
 ## 0.2.1
 
 * fix encoder setup is not awaiting leading to null pointer exceptions
+
+## 0.2.2
+
+* add stack trace to `RenderError`
