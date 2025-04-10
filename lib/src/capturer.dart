@@ -141,8 +141,8 @@ class RenderCapturer<K extends RenderFormat> {
       final totalFrameTarget =
           duration != null ? duration.inSeconds * targetFrameRate : null;
       _captureFrame(frame, totalFrameTarget);
-    } on RenderException catch (exception) {
-      session.recordError(exception);
+    } on RenderException catch (exception, stackTrace) {
+      session.recordError(exception, stackTrace);
       if (exception.fatal) return;
     }
     session.binding.addPostFrameCallback(
@@ -199,6 +199,7 @@ class RenderCapturer<K extends RenderFormat> {
                       details: e,
                       fatal: true,
                     ),
+                    stackTrace,
                   );
                 },
               );
@@ -225,13 +226,14 @@ class RenderCapturer<K extends RenderFormat> {
         _recordActivity(RenderState.handleCaptures, captureNumber,
             totalFrameTarget, "Handled frame $captureNumber");
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       session.recordError(
         RenderException(
           "Unknown error while handling capture.",
           details: e,
           fatal: true,
         ),
+        stackTrace,
       );
     }
     _activeHandlers--;

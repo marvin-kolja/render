@@ -35,9 +35,13 @@ class RenderError extends RenderNotifier {
   /// Used to determine if the error is fatal or not.
   final bool fatal;
 
+  /// The stack trace of the error. This is used to determine where the error
+  final StackTrace? stackTrace;
+
   RenderError({
     required this.fatal,
     required this.exception,
+    this.stackTrace,
     required super.timestamp,
   });
 

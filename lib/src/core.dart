@@ -525,6 +525,7 @@ class _RenderState extends State<Render> with WidgetsBindingObserver {
             "Application was paused during an active render session.",
             fatal: true,
           ),
+          StackTrace.current,
         );
       }
     }

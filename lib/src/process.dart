@@ -24,8 +24,8 @@ abstract class RenderProcessor<T extends RenderFormat> {
       final output = await _processTask();
       session.recordResult(output);
       _processing = false;
-    } on RenderException catch (error) {
-      session.recordError(error);
+    } on RenderException catch (error, stackTrace) {
+      session.recordError(error, stackTrace);
     }
   }
 
@@ -38,11 +38,14 @@ abstract class RenderProcessor<T extends RenderFormat> {
     try {
       final outputPath = await session.format.render();
       return File(outputPath);
-    } on Exception catch (error) {
-      session.recordError(RenderException(
-        "[Quick video encoder] $error",
-        fatal: true,
-      ));
+    } on Exception catch (error, stackTrace) {
+      session.recordError(
+        RenderException(
+          "[Quick video encoder] $error",
+          fatal: true,
+        ),
+        stackTrace,
+      );
       rethrow;
     }
   }

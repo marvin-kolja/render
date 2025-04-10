@@ -190,13 +190,14 @@ class RenderSession<T extends RenderFormat, K extends RenderSettings>
   }
 
   /// A method that is used to record errors in the session.
-  void recordError(RenderException exception) {
+  void recordError(RenderException exception, [StackTrace? stackTrace]) {
     if (_notifier.isClosed) return;
     _notifier.add(
       RenderError(
         timestamp: currentTimeStamp,
         fatal: exception.fatal,
         exception: exception,
+        stackTrace: stackTrace,
       ),
     );
     if (exception.fatal) {
